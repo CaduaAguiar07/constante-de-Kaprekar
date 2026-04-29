@@ -1,83 +1,75 @@
-# ============================================================
-# ALGORITMO: ROTINA DE KAPREKAR (CONSTANTE 6174)
-# REQUISITOS: APENAS MATEMÁTICA, SEM STRINGS, SEM LISTAS
-# ============================================================
-
 def main():
-    # 1. Leitura do número inicial
     print("--- Simulador da Rotina de Kaprekar ---")
-    n_inicial = int(input("Digite um número de 4 dígitos (diferentes): "))
-    
-    # 2. Validação rigorosa
-    if n_inicial < 0 or n_inicial > 9999:
+    n_inicial = int(input("Digite um número de 4 dígitos (não todos iguais): "))
+
+    # Rejeita números fora do intervalo válido de 4 dígitos (1 a 9999)
+    if n_inicial < 1 or n_inicial > 9999:
         print("Erro: O número deve ter entre 1 e 4 dígitos.")
         return
-    
-    if n_inicial != 0 and n_inicial % 1111 == 0:
+
+    # Rejeita números com todos os dígitos iguais (1111, 2222 ... 9999)
+    # pois a subtração resultaria em zero — a rotina nunca convergiria
+    if n_inicial % 1111 == 0:
         print("Erro: Os dígitos não podem ser todos iguais (ex: 1111).")
         return
 
-    # Definimos a variável de trabalho e o contador de iterações
     num = n_inicial
     iteracao = 0
-    
+
     print(f"\nIniciando processo para o número: {num:04d}")
     print("-" * 30)
 
-    # 3. Laço Principal: Repete até chegar na constante 6174
-    # Se o número já for 6174, o edital geralmente pede para mostrar ao menos 1 execução
-    # ou parar imediatamente. Aqui, faremos o processo padrão.
-    
-    primeira_execucao = True
-
-    while num != 6174 or primeira_execucao:
-        # Se o número for 6174 logo de cara, ele executa uma vez e para.
-        # Se não, ele segue até encontrar o 6174.
-        if num == 6174 and not primeira_execucao:
-            break
-            
+    # Loop principal: a rotina de Kaprekar sempre converge para 6174
+    # em no máximo 7 iterações para qualquer entrada válida de 4 dígitos
+    while True:
         iteracao += 1
-        
-        # A. EXTRAÇÃO DOS DÍGITOS (Decomposição Matemática)
-        # Ex: Se num = 3412
-        milhar  = num // 1000            # 3
-        centena = (num // 100) % 10      # 4
-        dezena  = (num // 10) % 10       # 1
-        unidade = num % 10               # 2
 
-        # B. ORDENAÇÃO MANUAL (Algoritmo de Troca Simples)
-        # Vamos organizar do maior para o menor: d1, d2, d3, d4
+        # Decompõe o número atual em seus 4 dígitos usando divisão inteira e módulo
+        # Isso evita o uso de strings — requisito do algoritmo
+        milhar  = num // 1000
+        centena = (num // 100) % 10
+        dezena  = (num // 10) % 10
+        unidade = num % 10
+
+        # Bubble sort manual em 4 variáveis — 3 passadas são suficientes
+        # para garantir a ordenação completa de 4 elementos em qualquer caso
         d1, d2, d3, d4 = milhar, centena, dezena, unidade
-        
-        # Bubble Sort manual para 4 variáveis
-        for i in range(4):
+
+        for _ in range(3):
             if d1 < d2: d1, d2 = d2, d1
             if d2 < d3: d2, d3 = d3, d2
             if d3 < d4: d3, d4 = d4, d3
 
-        # C. MONTAGEM DOS VALORES (Composição Matemática)
-        valor_maior = (d1 * 1000) + (d2 * 100) + (d3 * 10) + d4
-        valor_menor = (d4 * 1000) + (d3 * 100) + (d2 * 10) + d1
-        
-        # D. CÁLCULO DO NOVO NÚMERO
+        # Reconstrói o maior número (dígitos em ordem decrescente)
+        # e o menor (dígitos em ordem crescente, ou seja, d4..d1)
+        valor_maior = d1 * 1000 + d2 * 100 + d3 * 10 + d4
+        valor_menor = d4 * 1000 + d3 * 100 + d2 * 10 + d1
+
+        # O coração da rotina: a diferença entre o maior e o menor arranjo
         resultado = valor_maior - valor_menor
-        
-        # E. EXIBIÇÃO FORMATADA
-        # O :04d preenche com zeros à esquerda se o número tiver menos de 4 dígitos
+
+        # :04d formata com zeros à esquerda — garante exibição sempre com 4 dígitos
+        # Ex: 495 é exibido como 0495, não como 495
         print(f"Passo {iteracao}: {valor_maior:04d} - {valor_menor:04d} = {resultado:04d}")
-        
-        # Atualização para a próxima rodada
+
         num = resultado
-        primeira_execucao = False
-        
-        # Prevenção contra o zero (caso os dígitos sejam iguais por erro)
+
+        # Guarda de segurança: resultado zero indica dígitos todos iguais
+        # que passaram pela validação inicial (ex: entrada 0 não capturada)
         if num == 0:
-            print("Resultado zero atingido. Digitos iguais?")
+            print("Resultado zero atingido. Dígitos iguais detectados tardiamente.")
+            break
+
+        # Condição de parada: chegamos à constante de Kaprekar
+        # A prova matemática garante que todo número válido chega aqui
+        if num == 6174:
             break
 
     print("-" * 30)
     print(f"Rotina finalizada. Constante 6174 encontrada em {iteracao} passos.")
 
-# Iniciar o programa
+
+# Ponto de entrada padrão do Python — impede execução automática ao importar
+# este arquivo como módulo em outro script
 if __name__ == "__main__":
     main()
